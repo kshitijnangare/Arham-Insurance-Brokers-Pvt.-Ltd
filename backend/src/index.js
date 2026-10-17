@@ -19,6 +19,7 @@ dotenv.config();
 
 app.use(cors({
   origin: [
+    'https://arham-insurance-brokers-pvt-ltd.vercel.app',
     process.env.FRONTEND_URL,
     'http://localhost:5173', // Vite dev server
     'http://localhost:3000', // Alternative dev port

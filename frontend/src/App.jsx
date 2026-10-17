@@ -6,7 +6,8 @@ import StatusBanner from './components/StatusBanner.jsx';
 import MetricsCards from './components/MetricsCards.jsx';
 import TradeTable from './components/TradeTable.jsx';
 
-const SSE_URL = '/api/trades/stream';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const SSE_URL = `${API_BASE_URL}/api/trades/stream`;
 
 /**
  * App
