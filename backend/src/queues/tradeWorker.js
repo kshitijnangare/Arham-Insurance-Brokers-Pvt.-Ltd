@@ -18,7 +18,8 @@ dotenv.config();
  *  4. Broadcasts an SSE event to all connected dashboard clients so they refresh instantly.
  */
 
-const BSE_INTERNAL_URL = `http://localhost:${process.env.PORT || 5000}/api/bse/getTrades`;
+const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5000}`;
+const BSE_INTERNAL_URL = `${BASE_URL}/api/bse/getTrades`;
 
 // Allow the worker's axios call to wait longer than the mock delay + buffer (20 min)
 const WORKER_TIMEOUT_MS = Number(process.env.BSE_PULL_DELAY_MS || 900_000) + 120_000;
@@ -82,9 +83,9 @@ const worker = new Worker(
     const totalInDb = parseInt(totalResult.rows[0].count, 10);
 
     sseManager.broadcast({
-      type:        'PULL_COMPLETE',
+      type: 'PULL_COMPLETE',
       jobId,
-      newTrades:   trades.length,
+      newTrades: trades.length,
       totalInDb,
       completedAt: new Date().toISOString(),
     });
@@ -112,10 +113,10 @@ worker.on('failed', (job, err) => {
 
   // Notify connected dashboards that the pull failed
   sseManager.broadcast({
-    type:      'PULL_FAILED',
-    jobId:     job?.id,
-    reason:    err.message,
-    failedAt:  new Date().toISOString(),
+    type: 'PULL_FAILED',
+    jobId: job?.id,
+    reason: err.message,
+    failedAt: new Date().toISOString(),
   });
 });
 
