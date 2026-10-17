@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { getTrades as getBseTrades } from '../controllers/mockBse.controller.js';
+import { getTrades as getBseTrades } from '../controllers/mockBSEController.js';
 import {
   getTrades,
   getTradeMetrics,
   triggerPull,
   getQueueStatus,
   streamTrades,
-} from '../controllers/trade.controller.js';
+} from '../controllers/tradeController.js';
 
 const router = Router();
 

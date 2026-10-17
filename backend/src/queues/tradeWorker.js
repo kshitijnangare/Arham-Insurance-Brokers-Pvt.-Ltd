@@ -2,7 +2,7 @@ import { Worker } from 'bullmq';
 import axios from 'axios';
 import redisConnection from '../config/redis.js';
 import { query } from '../config/db.js';
-import { sseManager } from '../controllers/trade.controller.js';
+import { sseManager } from '../controllers/tradeController.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
