@@ -25,20 +25,20 @@ const StatusBanner = ({
   bsePullDelayMs = 15000,
 }) => {
   const isRunning = pullStatus === 'running';
-  const isIdle    = pullStatus === 'idle' || pullStatus === 'completed';
-  const isFailed  = pullStatus === 'failed';
+  const isIdle = pullStatus === 'idle' || pullStatus === 'completed';
+  const isFailed = pullStatus === 'failed';
 
   const delayLabel =
     bsePullDelayMs >= 60000
       ? `${Math.round(bsePullDelayMs / 60000)} min`
-      : `${bsePullDelayMs / 1000}s`;
+      : `${bsePullDelayMs / 1000}M`;
 
   // Format last sync time
   const syncLabel = lastSyncedAt
     ? new Intl.DateTimeFormat('en-IN', {
-        dateStyle: 'medium',
-        timeStyle: 'medium',
-      }).format(new Date(lastSyncedAt))
+      dateStyle: 'medium',
+      timeStyle: 'medium',
+    }).format(new Date(lastSyncedAt))
     : null;
 
   return (
@@ -51,7 +51,7 @@ const StatusBanner = ({
               <Loader2 className="w-4 h-4 animate-spin text-blue-600 flex-shrink-0" />
               <span className="font-semibold">BSE pull in progress</span>
               <span className="text-blue-600 hidden sm:inline">
-                — fetching up to 3 000 trades from the mock BSE API (delay: {delayLabel}).
+                — fetching up to 3000 trades from the mock BSE API (delay: {delayLabel}).
                 The dashboard will update automatically when complete.
               </span>
             </div>
