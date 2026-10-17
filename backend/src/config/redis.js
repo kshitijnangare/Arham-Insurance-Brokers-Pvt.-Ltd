@@ -1,7 +1,7 @@
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ override: false });
 
 /**
  * Shared IORedis connection used by both BullMQ Queue and Worker.
