@@ -9,7 +9,7 @@ export default defineConfig({
     proxy: {
       // Proxy all /api requests to the Express backend during development
       '/api': {
-        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+        target: env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
         // SSE connections need special handling — do not buffer
         configure: (proxy) => {
