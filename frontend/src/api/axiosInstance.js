@@ -5,7 +5,7 @@ import axios from 'axios';
  * All requests are relative to /api which Vite proxies to http://localhost:5000.
  */
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',

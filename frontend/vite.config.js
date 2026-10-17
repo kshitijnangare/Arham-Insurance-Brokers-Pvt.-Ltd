@@ -8,19 +8,19 @@ export default defineConfig({
     port: 5173,
     proxy: {
       // Proxy all /api requests to the Express backend during development
-      '/api': {
-        target: env.VITE_API_URL || 'http://localhost:5000',
-        changeOrigin: true,
-        // SSE connections need special handling — do not buffer
-        configure: (proxy) => {
-          proxy.on('proxyRes', (proxyRes) => {
-            // Forward SSE headers without buffering
-            if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
-              proxyRes.headers['x-accel-buffering'] = 'no';
-            }
-          });
-        },
-      },
+      // '/api': {
+      //   target: 'http://localhost:5000',
+      //   changeOrigin: true,
+      //   // SSE connections need special handling — do not buffer
+      //   configure: (proxy) => {
+      //     proxy.on('proxyRes', (proxyRes) => {
+      //       // Forward SSE headers without buffering
+      //       if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
+      //         proxyRes.headers['x-accel-buffering'] = 'no';
+      //       }
+      //     });
+      //   },
+      // },
     },
   },
 });
