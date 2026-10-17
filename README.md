@@ -37,19 +37,44 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full diagram and design rationa
 | Database   | PostgreSQL 15+ (local or Supabase pooler)        |
 | Queue      | BullMQ (Redis-backed)                            |
 | Frontend   | React 18, Vite 5, Tailwind CSS 3, Zustand, Axios |
+| Web Server | Nginx (Reverse Proxy & Static File Server)       |
+| Container  | Docker & Docker Compose                          |
 | Real-time  | Server-Sent Events (SSE)                         |
 
 ---
 
-## Prerequisites
+## Quickstart with Docker Compose (Recommended)
+
+Run the entire application stack (**PostgreSQL, Redis, Backend, and Frontend with Nginx**) using a single command:
+
+```bash
+docker compose up --build
+```
+
+### Services launched:
+- **`postgres`**: `postgres:15-alpine` running on port `5432`, initializes `ftat_db` with persistent volume `postgres_data`.
+- **`redis`**: `redis:7-alpine` running on port `6379` with persistent volume `redis_data`.
+- **`backend`**: Node.js 20 Express service exposing port `5000` with automatic DB table initialization and BullMQ worker.
+- **`frontend`**: Production Vite build served via Nginx on port `80` (and mapped to port `5173`), proxying `/api/*` to the backend container.
+
+### Accessing the application:
+- Open your browser at **http://localhost:80** or **http://localhost:5173**.
+- Backend health check: **http://localhost:5000/health**.
+
+To stop and remove containers:
+```bash
+docker compose down
+```
+
+---
+
+## Local Setup (Without Docker)
+
+### Prerequisites
 
 - **Node.js** ≥ 20.x  
 - **Redis** ≥ 7.x (running locally on default port `6379`)  
 - **PostgreSQL** ≥ 14 (local or Supabase)
-
----
-
-## Setup Instructions
 
 ### 1. Clone and enter the project
 
@@ -165,7 +190,7 @@ Vite will start on **http://localhost:5173**.
 
 ## Usage
 
-1. Open **http://localhost:5173** in your browser.
+1. Open **http://localhost:5173** (or **http://localhost:80** if running via Docker).
 2. The dashboard loads instantly, showing any already-stored trades.
 3. Click **"Trigger BSE API Pull"** — the server responds in `<100ms` with HTTP 202.
 4. The status banner shows **"BSE pull in progress"** with a spinner.
@@ -212,14 +237,16 @@ The frontend connects to `/api/trades/stream` once. Events pushed by the backend
 
 ```
 bse-trades-system/
+├── docker-compose.yml         # Multi-container orchestration (PostgreSQL, Redis, Backend, Frontend)
 ├── backend/
+│   ├── Dockerfile             # Multi-stage Node 20 alpine backend image
 │   ├── src/
 │   │   ├── config/
 │   │   │   ├── db.js              # PostgreSQL pool + initDb()
 │   │   │   └── redis.js           # IORedis singleton
 │   │   ├── controllers/
-│   │   │   ├── mockBse.controller.js   # GET /api/bse/getTrades
-│   │   │   └── trade.controller.js     # REST + SSEManager + SSE stream
+│   │   │   ├── mockBSEController.js # GET /api/bse/getTrades
+│   │   │   └── tradeController.js   # REST + SSEManager + SSE stream
 │   │   ├── queues/
 │   │   │   ├── tradeQueue.js      # BullMQ Queue
 │   │   │   └── tradeWorker.js     # BullMQ Worker (fetch → upsert → SSE)
@@ -231,17 +258,19 @@ bse-trades-system/
 │   ├── .env.example
 │   └── package.json
 ├── frontend/
+│   ├── Dockerfile             # Multi-stage Vite build + Nginx alpine production image
+│   ├── nginx.conf             # Nginx reverse proxy + SPA routing + SSE support
 │   ├── src/
 │   │   ├── api/
 │   │   │   └── axiosInstance.js
 │   │   ├── components/
-│   │   │   ├── DashboardHeader.jsx
+│   │   │   ├── Sidebar.jsx        # Vertical collapsible navigation sidebar
 │   │   │   ├── StatusBanner.jsx
 │   │   │   ├── TradeTable.jsx
 │   │   │   └── MetricsCards.jsx
 │   │   ├── store/
 │   │   │   └── useTradeStore.js   # Zustand global store
-│   │   ├── App.jsx                # SSE connection + root layout
+│   │   ├── App.jsx                # Layout + SSE connection
 │   │   ├── main.jsx
 │   │   └── index.css
 │   ├── tailwind.config.js
@@ -255,7 +284,7 @@ bse-trades-system/
 
 ## Development Notes
 
-- **Changing the mock delay**: Edit `BSE_PULL_DELAY_MS` in `.env`. `15000` = 15 seconds for quick testing.
-- **Worker in same process**: For simplicity, the BullMQ worker runs inside the Express process. In production, move it to a separate worker dyno/container.
+- **Changing the mock delay**: Edit `BSE_PULL_DELAY_MS` in `.env` or in `docker-compose.yml`. `15000` = 15 seconds for quick testing.
+- **Worker in same process**: For simplicity, the BullMQ worker runs inside the Express process.
 - **Multi-process SSE**: The `SSEManager` is in-process. For clustered/multi-instance deployments, replace `broadcast()` with Redis Pub/Sub.
 - **Supabase SSL**: Set `DB_SSL=true` in `.env` and uncomment the Supabase variables.
